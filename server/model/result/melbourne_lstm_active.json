@@ -1,0 +1,36 @@
+{
+  "model_name": "melbourne_candidate_random_forest",
+  "model_family": "random_forest",
+  "feature_preset": "notebook_cod",
+  "pipeline_version": 9,
+  "model_path": "/Users/hyun/workspace/mlops/model_serving_rpt/server/model/result/melbourne_lstm_active.keras",
+  "bundle_path": "/Users/hyun/workspace/mlops/model_serving_rpt/server/model/result/melbourne_lstm_active.pkl",
+  "feature_columns": [
+    "Ammonia",
+    "Total Nitrogen",
+    "Average Inflow",
+    "Average Outflow",
+    "Average Temperature",
+    "Maximum temperature",
+    "Minimum temperature",
+    "Total rainfall"
+  ],
+  "target_column": "Chemical Oxygen Demand",
+  "window_size": 1,
+  "stride": 1,
+  "rmse_threshold": 66.10464569091796,
+  "validation_metrics": {
+    "rmse": 67.45372009277344,
+    "mae": 52.3911018371582,
+    "mape": 6.400452613830566
+  },
+  "calibration_metrics": {
+    "rmse": 111.4492416381836,
+    "mae": 69.9184799194336,
+    "mape": 7.641386032104492
+  },
+  "train_reference": "/Users/hyun/workspace/mlops/model_serving_rpt/data2/Data-Melbourne_F_fixed.csv::recent_bootstrap_tail+20260407_151453_upload_1_2018_q3_q4.csv::excluding_promotion_holdout",
+  "calibration_reference": "/Users/hyun/workspace/mlops/model_serving_rpt/data2/Data-Melbourne_F_fixed.csv::2017-12-31..2018-06-30",
+  "search_space_size": 1,
+  "search_summary": "candidate search finished: 1 successful / 1 total across models=random_forest, presets=notebook_cod, windows=1"
+}

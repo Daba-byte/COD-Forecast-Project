@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.DS_Store
+server/uploaded_files/20*.csv
+server/view-model-architecture/20*_preview.png
+server/model-images/dashboard_*.png
+model_search_results.csv

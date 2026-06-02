@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <title>Melbourne WWTP AIOps Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="css/aiops-dashboard.css" type="text/css" />
+</head>
+<body>
+    <div class="site-shell">
+        <header class="site-header">
+            <div class="site-header__inner">
+                <a class="brand" href="#overview">
+                    <div class="brand__mark">
+                        <img src="img/logo/image.png" alt="WaterSentinel 로고" />
+                    </div>
+                    <div>
+                        <p class="brand__eyebrow">WaterSentinel</p>
+                    </div>
+                </a>
+
+                <nav class="header-nav" aria-label="주요 섹션">
+                    <a class="header-link" href="#overview">운영 요약</a>
+                    <a class="header-link" href="#baseline-stream">기준 그래프</a>
+                    <a class="header-link" href="#monitoring">성능 리포트</a>
+                    <a class="header-link" href="#prediction">예측 결과</a>
+                </nav>
+
+            </div>
+
+            <nav class="mobile-nav" aria-label="모바일 섹션 네비게이션">
+                <a class="header-link" href="#overview">요약</a>
+                <a class="header-link" href="#baseline-stream">그래프</a>
+                <a class="header-link" href="#monitoring">성능</a>
+                <a class="header-link" href="#prediction">예측</a>
+            </nav>
+        </header>
+
+        <main class="dashboard-main">
+            <section id="overview" class="section-shell">
+                <div class="hero-section report-hero">
+                    <div class="report-masthead">
+                        <div class="report-masthead__main">
+                            <div class="section-kicker">
+                            </div>
+                            <div class="report-docline"></div>
+                            <h1>방류수 오염 예측을 통한<br>오폐수 관리 시스템</h1>
+                            <p class="report-lead">
+                                이 화면은 방류수의 오염 정도를 보여주는 지표인 화학적 산소 요구량(COD) 예측 모델의 성능과 기준 상태를 한눈에 보여주는 운영 화면입니다.
+                                새 데이터를 업로드하면 현재 모델을 평가하고, 필요하면 재학습 여부를 확인할 수 있습니다.
+                            </p>
+
+                            <div class="report-summary">
+                                <div class="report-summary__title">요약</div>
+                                <p>
+                                    방류수의 화학적 산소 요구량(COD)을 예측하고 현재 모델이 잘 작동하는지 계속 확인합니다.
+                                    아래에서 현재 모델 성능, 기준선, 재학습 판단 결과를 볼 수 있습니다.
+                                </p>
+                            </div>
+                        </div>
+
+                        <aside class="report-masthead__side">
+                            <div class="report-info-block">
+                                <h2>문서 정보</h2>
+                                <div class="report-info-table">
+                                    <div class="report-info-row">
+                                        <div class="report-info-row__label">예측 대상</div>
+                                        <div class="report-info-row__value">
+                                            <strong id="overviewTarget">COD</strong>
+                                            <span>Chemical Oxygen Demand</span>
+                                        </div>
+                                    </div>
+                                    <div class="report-info-row">
+                                        <div class="report-info-row__label">운영 모델</div>
+                                        <div class="report-info-row__value">
+                                            <strong id="overviewModel">RandomForest</strong>
+                                            <span>Notebook-aligned tabular model</span>
+                                        </div>
+                                    </div>
+                                    <div class="report-info-row">
+                                        <div class="report-info-row__label">임계치</div>
+                                        <div class="report-info-row__value">
+                                            <strong id="overviewThresholdRmse">N/A</strong>
+                                            <span>RMSE 기준</span>
+                                        </div>
+                                    </div>
+                                    <div class="report-info-row">
+                                        <div class="report-info-row__label">현재 상태</div>
+                                        <div class="report-info-row__value">
+                                            <strong id="overviewStatus">대기 중</strong>
+                                            <span>업로드 전</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <div class="report-metrics-section">
+                        <div class="report-current-model">
+                            <h2>현재 운영 모델</h2>
+                            <p class="report-current-model__intro">
+                                현재 운영 중인 active 모델의 대표 예측 그래프를 표시합니다. 업로드 전에는 calibration 구간 기준 그래프가, 업로드 후에는 최신 active 예측 그래프가 표시됩니다.
+                            </p>
+                            <div id="overviewModelFigure" class="report-figure-block">
+                                <div class="report-figure-block__title">Current Operating Forecast</div>
+                                <div class="report-figure-block__caption">초기 active 모델의 calibration forecast를 불러오는 중입니다.</div>
+                            </div>
+                        </div>
+
+                        <h2>핵심 지표</h2>
+                        <div class="report-metrics-table">
+                            <div class="report-metric-row">
+                                <div class="report-metric-row__label">현재 모델 MAPE</div>
+                                <div class="report-metric-row__value" id="overviewActiveMape">-</div>
+                                <div class="report-metric-row__note">현재 active 모델 기준</div>
+                            </div>
+                            <div class="report-metric-row">
+                                <div class="report-metric-row__label">현재 모델 RMSE</div>
+                                <div class="report-metric-row__value" id="overviewActiveRmse">-</div>
+                                <div class="report-metric-row__note">현재 active 모델 기준</div>
+                            </div>
+                            <div class="report-metric-row">
+                                <div class="report-metric-row__label">기준선 MAPE</div>
+                                <div class="report-metric-row__value" id="overviewBaselineMape">-</div>
+                                <div class="report-metric-row__note">비교용 baseline GRU</div>
+                            </div>
+                             <div class="report-metric-row">
+                                <div class="report-metric-row__label">기준선 RMSE</div>
+                                <div class="report-metric-row__value" id="overviewBaselineRmse">-</div>
+                                <div class="report-metric-row__note">비교용 baseline GRU</div>
+                            </div>
+                            <div class="report-metric-row">
+                                <div class="report-metric-row__label">Threshold (RMSE)</div>
+                                <div class="report-metric-row__value" id="overviewThresholdCard">-</div>
+                                <div class="report-metric-row__note">재학습 판단 기준</div>
+                            </div>
+                            <div class="report-metric-row">
+                                <div class="report-metric-row__label">Exceed Ratio</div>
+                                <div class="report-metric-row__value" id="overviewExceedRatio">-</div>
+                                <div class="report-metric-row__note">threshold 대비 초과율</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="baseline-stream" class="section-shell">
+                <div class="section-panel">
+                    <div class="section-heading">
+                        <div>
+                            <div class="section-eyebrow">Base Stream</div>
+                            <h2>기준 COD 그래프</h2>
+                            <p>실시간 적재 대신 기준 데이터와 calibration 예측 그래프를 먼저 보여주고, 이후 업로드는 새 운영 배치처럼 해석합니다.</p>
+                        </div>
+                    </div>
+
+                    <div id="initialStreamSummary" class="soft-banner">
+                        초기 기준 시계열을 불러오는 중입니다.
+                    </div>
+
+                    <div id="initialChartContainer" class="row g-4" style="margin-top: 4px;">
+                        <div class="col-lg-4">
+                            <div class="placeholder-card">
+                                <strong>방류수 COD 기준 시계열</strong>
+                                전체 기준 데이터의 흐름을 로드하면 이 자리에 그래프가 표시됩니다.
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="placeholder-card">
+                                <strong>COD 분포</strong>
+                                기준 데이터에서 COD 값이 어떤 범위에 몰려 있는지 보여주는 분포 그래프가 여기에 표시됩니다.
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="placeholder-card">
+                                <strong>Calibration Forecast</strong>
+                                초기 active 모델의 기준선 예측 그래프가 여기에 표시됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="monitoring" class="section-shell">
+                <div class="section-panel">
+                    <div class="section-heading">
+                        <div>
+                            <div class="section-eyebrow">운영 평가</div>
+                            <h2>성능 리포트</h2>
+                            <p>현재 active 모델의 평가 결과와 재학습 검토 메시지를 보고서 형식으로 보여줍니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="monitor-grid">
+                        <div class="upload-card upload-card--compact">
+                            <div class="upload-card__eyebrow">배치 입력</div>
+                            <h3>배치 테스트 입력</h3>
+                            <p>실시간 입력 대신 운영 배치를 흉내 낼 때만 사용합니다.</p>
+
+                            <form id="uploadForm" class="upload-form" method="POST" enctype="multipart/form-data">
+                                <label class="file-picker" for="fileUpload">
+                                    <div class="file-picker__label">
+                                        <span>테스트 CSV 선택</span>
+                                        <span id="selectedFileName">선택된 파일 없음</span>
+                                    </div>
+                                    <div class="file-picker__hint">
+                                        추천 테스트 순서: `test_2018_h1.csv` → `upload_1` → `upload_2` → `upload_3`
+                                    </div>
+                                    <input type="file" id="fileUpload" name="uploadedFile" accept=".csv">
+                                </label>
+
+                                <div class="button-row">
+                                    <button type="submit" id="uploadSubmitBtn" class="secondary-btn compact-btn">
+                                        테스트 실행
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div id="actionStatus" class="action-status" aria-live="polite"></div>
+
+                            <div class="feature-chip-grid feature-chip-grid--muted">
+                                <span class="feature-chip">COD Forecast</span>
+                                <span class="feature-chip">기준선 점검</span>
+                                <span class="feature-chip">후보 비교</span>
+                                <span class="feature-chip">승인 흐름</span>
+                            </div>
+                        </div>
+
+                            <div class="monitor-summary">
+                            <div class="summary-card">
+                                <div class="summary-card__meta">
+                                    <span class="summary-chip">예측 대상 COD</span>
+                                    <span class="summary-chip">notebook_cod preset</span>
+                                </div>
+                                <div id="fileName" class="summary-card__body" style="display: none;"></div>
+                                <div id="resultSummary" class="summary-card__body">
+                                    아직 업로드된 파일이 없습니다. 업로드 후 이 영역에 모델 요약과 재학습 판단 결과가 표시됩니다.
+                                </div>
+                                <div class="button-row" style="margin-top: 18px;">
+                                    <button id="downloadImage" type="button" class="secondary-btn">
+                                        예측 이미지 다운로드
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="retrainingDecisionPanel" class="summary-card decision-panel" style="display: none;">
+                                <div class="summary-card__meta">
+                                    <span class="summary-chip">재학습 판단</span>
+                                </div>
+                                <div id="decisionPanelTitle" class="decision-panel__title">현재 모델 평가 대기</div>
+                                <div id="decisionPanelBody" class="summary-card__body">
+                                    업로드 후 현재 모델의 RMSE와 기준선을 비교한 판단 결과가 이 영역에 표시됩니다.
+                                </div>
+                                <div id="decisionPanelMetrics" class="decision-panel__metrics"></div>
+                                <div id="decisionPanelActions" class="button-row" style="margin-top: 14px; display: none;">
+                                    <button type="button" id="inlineKeepModelBtn" class="secondary-btn">현재 모델 유지</button>
+                                    <button type="button" id="inlineRetrainBtn" class="primary-btn">재학습 실행</button>
+                                </div>
+                            </div>
+
+                            <div class="quick-stats">
+                                <div class="quick-stat">
+                                    <div class="quick-stat__label">서비스 유형</div>
+                                    <div class="quick-stat__value">COD 예측</div>
+                                    <div class="quick-stat__sub">방류수 COD 예측 · 기준선 모니터링 · 승인 재학습</div>
+                                </div>
+                                <div class="quick-stat">
+                                    <div class="quick-stat__label">학습 구간</div>
+                                    <div class="quick-stat__value">2014–2017</div>
+                                    <div class="quick-stat__sub">초기 active 모델 bootstrap training</div>
+                                </div>
+                                <div class="quick-stat">
+                                    <div class="quick-stat__label">기준선 구간</div>
+                                    <div class="quick-stat__value">2018 H1</div>
+                                    <div class="quick-stat__sub">기준값 산정과 보정 예측 확인 구간</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="performance" class="section-shell">
+                <div class="section-panel">
+                    <div class="section-heading">
+                        <div>
+                            <div class="section-eyebrow">평가 결과</div>
+                            <h2>평가 보고서</h2>
+                            <p>업로드된 배치에 대한 active 모델 평가, baseline 비교, 재학습 판단 결과가 여기에 표시됩니다.</p>
+                        </div>
+                    </div>
+
+                    <div id="resultMetrics" class="placeholder-stack">
+                        <div class="placeholder-card">
+                            <strong>현재 모델 평가 보고서</strong>
+                            업로드 전에는 보고서가 비어 있습니다. CSV를 업로드하면 현재 모델 성능, 기준 초과 여부, 요약 코멘트가 이 영역에 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="prediction" class="section-shell">
+                <div class="section-panel">
+                    <div class="section-heading">
+                        <div>
+                            <div class="section-eyebrow">예측 시각화</div>
+                            <h2>예측 그래프</h2>
+                            <p>업로드 이후 실제값과 예측값의 비교 그래프를 정적으로 정리해 보여줍니다.</p>
+                        </div>
+                    </div>
+
+                    <div id="imageContainer" class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="placeholder-card">
+                                <strong>현재 모델 예측 그래프</strong>
+                                업로드 후 현재 모델의 실제값 대비 예측 그래프가 이 자리에 표시됩니다.
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="placeholder-card">
+                                <strong>재학습 비교 그래프</strong>
+                                재학습을 실행한 뒤 비교용 그래프가 필요한 경우 이 영역에 함께 표시됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="page-footer">
+            Melbourne WWTP AIOps · COD 예측 파이프라인 · notebook 기반 RandomForest active model · FastAPI static frontend
+        </footer>
+    </div>
+
+    <div class="modal fade toss-modal" id="approvalModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">재학습 검토 보고서</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="reportSeverityBadge" class="toss-badge medium">MEDIUM</div>
+                    <div id="approvalReportTitle" class="report-summary-text">재학습 검토 보고서</div>
+                    <div id="approvalReportSummary" class="report-sub-text"></div>
+
+                    <div class="report-metrics-mini">
+                        <div class="item">
+                            <div class="label">현재 RMSE</div>
+                            <div class="value" id="modalCurrentRmse">N/A</div>
+                        </div>
+                        <div class="item">
+                            <div class="label">기준 RMSE</div>
+                            <div class="value" id="modalThresholdRmse">N/A</div>
+                        </div>
+                    </div>
+
+                    <div id="approvalComparisonBanner" class="soft-banner" style="display: none;"></div>
+
+                    <div id="approvalComparisonCards" class="comparison-grid" style="display: none;"></div>
+
+                    <div id="approvalComparisonCharts" class="comparison-chart-grid" style="display: none;"></div>
+
+                    <div id="approvalRecommendationBox" class="recommendation-box" style="display: none;">
+                        <div id="approvalRecommendationTitle" class="recommendation-box__title"></div>
+                        <p id="approvalRecommendationBody" class="recommendation-box__body"></p>
+                    </div>
+
+                    <div class="report-section">
+                        <ul id="approvalReportDetails" class="findings-list"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-btn" id="rejectRetrainBtn" data-bs-dismiss="modal">현재 모델 유지</button>
+                    <button type="button" class="primary-btn" id="approveRetrainBtn">재학습 실행</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade result-modal" id="approvalResultModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">재학습 전후 비교 보고서</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="approvalOutcomeSeverityBadge" class="toss-badge medium">MEDIUM</div>
+                    <div id="approvalOutcomeTitle" class="report-summary-text">재학습 전후 비교 보고서</div>
+                    <div id="approvalOutcomeSubtitle" class="report-sub-text"></div>
+
+                    <div class="report-metrics-mini">
+                        <div class="item">
+                            <div class="label">변경 전 MAPE</div>
+                            <div class="value" id="approvalOutcomeBeforeMape">N/A</div>
+                        </div>
+                        <div class="item">
+                            <div class="label">변경 후 MAPE</div>
+                            <div class="value" id="approvalOutcomeAfterMape">N/A</div>
+                        </div>
+                        <div class="item">
+                            <div class="label">변경 전 RMSE</div>
+                            <div class="value" id="approvalOutcomeBeforeRmse">N/A</div>
+                        </div>
+                        <div class="item">
+                            <div class="label">변경 후 RMSE</div>
+                            <div class="value" id="approvalOutcomeAfterRmse">N/A</div>
+                        </div>
+                    </div>
+
+                    <div id="approvalOutcomeBanner" class="soft-banner"></div>
+                    <div id="approvalOutcomeCharts" class="comparison-chart-grid" style="display: none;"></div>
+                    <div id="approvalOutcomeRecommendationBox" class="recommendation-box" style="display: none;">
+                        <div id="approvalOutcomeRecommendationTitle" class="recommendation-box__title"></div>
+                        <p id="approvalOutcomeRecommendationBody" class="recommendation-box__body"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="primary-btn" id="closeApprovalResultBtn" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/post.js"></script>
+    <script src="js/get.js"></script>
+</body>
+</html>
