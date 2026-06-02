@@ -165,8 +165,8 @@ target인 `Chemical Oxygen Demand`의 전체 평균값이 대략 `846` 수준이
 
 ## 환경변수
 
-프로젝트 루트의 [`.env`](/Users/hyun/workspace/mlops/model_serving_rpt/.env) 파일을 자동으로 읽습니다.  
-예시는 [`.env.example`](/Users/hyun/workspace/mlops/model_serving_rpt/.env.example)에 있습니다.
+프로젝트 루트의 [`.env`](/Users/daba/workspace/mlops/model_serving_rpt/.env) 파일을 자동으로 읽습니다.  
+예시는 [`.env.example`](/Users/daba/workspace/mlops/model_serving_rpt/.env.example)에 있습니다.
 
 기본 예시:
 
@@ -185,18 +185,13 @@ MELBOURNE_SEQUENCE_MODEL=random_forest
 예시:
 
 ```bash
-cd /Users/hyun/workspace/mlops/model_serving_rpt
+cd /Users/daba/workspace/mlops/model_serving_rpt
 /Users/hyun/workspace/mlops/.venv/bin/pip install fastapi "uvicorn[standard]" pandas pytz python-multipart matplotlib tensorflow scikit-learn python-dotenv openai
 ```
 
 ## 실행 방법
 
 프로젝트 루트에서 실행하는 것을 기준으로 합니다.
-
-```bash
-cd /Users/hyun/workspace/mlops/model_serving_rpt
-/Users/hyun/workspace/mlops/.venv/bin/python -m uvicorn server_model.main:app --port 8001 --reload
-```
 
 접속 주소:
 
